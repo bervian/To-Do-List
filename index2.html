@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSS only -->
+<link rel="stylesheet" href="style.css" type="text/css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Akshar:wght@400;600&family=Titillium+Web:wght@600&display=swap" rel="stylesheet">
+    
+    <title>Listtodo</title>
+</head>
+<body style="background-color:  #570a57;">
+    <div id="huruf" class="container">
+        <div class="row">
+  <div class="col border border-3 border-dark mt-3 rounded p-3 text-white" style = "background-color: #2e0249">
+                <h1 style="color: #f806cc;">To Do List</h1>
+                <h6>Author : <span id="author"></span></h6>
+                <h6>Last Update : <span id="last"></span></h6>
+                <h6>Domain : <span id="domain"></span></h6>
+
+                <form onsubmit="checkInput(event)">
+                <div id="daftar"></div>
+                    <div class="input-group mb-3 mt-5">
+                        <input list="sugesti" type="text" id="inputan" class="form-control" placeholder="Tugas" aria-label="Tugas" aria-describedby="button-addon2">
+                        <datalist id="sugesti">
+                            <option value="Edge">
+                            <option value="Firefox">
+                            <option value="Chrome">
+                            <option value="Opera">
+                            <option value="Safari">
+                        </datalist>
+                        <button class="btn btn-outline-secondary" type="button" style="color: #f806cc;" onclick="tambahList()" id="button-addon2">+</button>    
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- JavaScript Bundle with Popper -->
+<script src="asset/bootstrap.js"></script>
+<script src="asset/jquery.js"></script>
+<script>
+
+    var buttonTambah = document.getElementById("button-addon2")
+    var daftar = document.getElementById("daftar")
+    var inputan = document.getElementById("inputan")
+
+    var author = document.getElementById("author")
+    var lastUpdate = document.getElementById("last")
+    var domain = document.getElementById("domain")
+
+    var idElement = 0
+    function tambahList(){
+
+        var isiInputan = inputan.value
+
+        var elementBaru = document.createElement("div")
+        elementBaru.classList.add("form-check")
+
+        var elementInput = document.createElement("input")
+        elementInput.classList.add("form-check-input")
+        elementInput.type = "checkbox"
+        elementInput.id = "elementInputKe" + idElement
+
+        var elementLabel = document.createElement("label")
+        elementLabel.classList.add("form-check-label")
+        elementLabel.innerHTML = isiInputan
+        elementLabel.id = "elementLabelKe" + idElement
+        elementLabel.setAttribute("for", "elementInputKe" + idElement)
+
+        elementBaru.append(elementInput)
+        elementBaru.append(elementLabel)
+
+        daftar.append(elementBaru)
+
+        elementInput.onchange = function(event){
+          if(this.checked){
+            elementLabel.style.textDecoration = "line-through"
+          }else{
+            elementLabel.style.textDecoration = "none"
+          }
+
+        }
+
+        inputan.value = ""
+        idElement = idElement + 1
+
+    }
+
+    function checkInput(event){
+        event.preventDefault()
+        tambahList()
+        
+      }
+
+      async function getInfo(){
+        var url = "http://localhost:8000/info.json"
+        let response = await fetch (url)
+        let jsonResponse = await response.json()
+        console.log("author: ", jsonResponse.author)
+        console.log("last_update: ", jsonResponse.last_update)
+        console.log("domain: ", jsonResponse.domain)
+       
+        author.innerHTML = jsonResponse.author
+        lastUpdate.innerHTML = jsonResponse.last_update
+        domain.innerHTML = jsonResponse.domain  
+
+      }
+
+      getInfo()
+
+      async function gettodo(){
+        var url = "http://localhost:8000/daftar_todo.json"
+        let response = await fetch (url)
+        let jsonResponse = await response.json()
+            console.log(jsonResponse)
+        jsonResponse.forEach(item => {
+            console.log(item)
+        
+            //membuat element div baru untuk item list dengan class form check
+            var elementBaru = document.createElement('div')
+            elementBaru.classList.add("form-check")
+
+            //buat element input yang dimasukkan sebagai child elementbaru
+            var elementInput = document.createElement('input')
+            elementInput.classList.add("form-check-input")
+            elementInput.type = "checkbox"
+            elementInput.id = "elementInputKe" + item.id
+
+            //buat element label yang dimasukkan sebagai child elementbaru
+            var elementLabel = document.createElement('label')
+            elementLabel.classList.add('form-check-label')
+            elementLabel.innerHTML = item.label
+            elementLabel.id = "elementLabelKe" + item.id
+            elementLabel.setAttribute("for", "elementInputKe"+item.id)
+
+            //menambahkan elementinput dan elementlabel ke dalam elementbaru
+            elementBaru.append(elementInput)
+            elementBaru.append(elementLabel)
+
+
+            //menambahkan elementbaru ke dalam daftar
+            daftar.append(elementBaru)
+
+            elementInput.onchange = function(event){
+              if(this.checked){
+                elementLabel.style.textDecoration = "line-through"
+              }else{
+                elementLabel.style.textDecoration = "none"
+              }
+
+            }
+
+            elementInput.checked = item.checked
+          })
+
+      }
+      gettodo()
+
+
+
+</script>
+</body>
+</html>
